@@ -1,0 +1,193 @@
+<html>
+    <head>
+        <title>My first three.js app</title>
+        <style>
+            body { margin: 0; }
+            canvas { display: block; }
+        </style>
+    </head>
+    <body>
+        <script src="three.js-master/build/three.js"></script>
+        <script src="three.js-master/examples/js/controls/OrbitControls.js"></script>
+        <script>
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+ 
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+ 
+            var angle;
+            var axiom = 'X';
+            var sentence = axiom;
+            var len = 100;
+ 
+            var rules = [];
+            rules[0] = {
+            a: 'X',
+            b: 'F+[[F]-X]-F[-FX]+X'
+            };
+ 
+            rules[1] = {
+            a: 'F',
+            b: 'FF' 
+            };
+ 
+            //console.log(rules[0]);
+ 
+ 
+ 
+            function generate() {
+                len *= 0.5;
+                var nextSentence = '';
+                for (var i = 0; i < sentence.length; i++) {
+                    var current = sentence.charAt(i);
+                    var found = false;
+                    for (var j = 0; j < rules.length; j++) {
+                        if (current == rules[j].a) {
+                            found = true;
+                            nextSentence += rules[j].b;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                    nextSentence += current;
+                    }
+                }
+                sentence = nextSentence;
+                console.log(sentence);
+                //turtle();
+            }
+ 
+            generate();
+            generate();
+            /*
+            var geometry = new THREE.BoxGeometry();
+            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            var cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );*/
+ 
+ 
+            /*
+            var material = new THREE.LineBasicMaterial({
+                color: 0x00ff00
+            });
+ 
+ 
+            var points = [];
+            points.push( new THREE.Vector3( - 10, 0, 0 ) );
+            points.push( new THREE.Vector3( 0, 10, 0 ) );
+            //points.push( new THREE.Vector3( 10, 0, 0 ) );
+ 
+            points.push( new THREE.Vector3( 0, -10, 0 ) );
+            points.push( new THREE.Vector3( 10, 0, 0 ) );
+ 
+            var geometry = new THREE.BufferGeometry().setFromPoints( points );
+ 
+            line = new THREE.Line( geometry, material );
+            scene.add( line );
+ 
+            points.pop();
+            points.push( new THREE.Vector3( 0, 0, 10 ) );
+ 
+            var geometry = new THREE.BufferGeometry().setFromPoints( points );
+ 
+            line = new THREE.Line( geometry, material );
+            scene.add( line );*/
+ 
+            var controls = new THREE.OrbitControls( camera, renderer.domElement );
+ 
+ 
+            camera.position.z = 10;
+ 
+            var mat = [];
+ 
+            mat = new THREE.Matrix4();
+ 
+            mat.set( 1,0,0,0,
+                        0,1,0,0,
+                        0,0,1,0,
+                        0,0,0,1);
+ 
+            console.log(mat);
+ 
+            mat.makeRotationX(Math.PI/2);
+ 
+ 
+                        
+            
+ 
+            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            var points = [];
+            points.push( new THREE.Vector3( 0, 0, 0 ) );
+ 
+            points.push( new THREE.Vector3( 0, 1, 0 ) );
+ 
+            var geometry = new THREE.BufferGeometry().setFromPoints( points );
+ 
+ 
+ 
+            line = new THREE.Line( geometry, material );
+            scene.add( line );
+ 
+ 
+            var geometry = new THREE.CylinderGeometry(1, 1, 2, 32 );
+            var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+            var cylinder = new THREE.Mesh( geometry, material );
+ 
+            //cylinder.translate(THREE.Vector3.setFromMatrixPosition(mat[0]));
+ 
+            scene.add( cylinder );
+            
+            
+ 
+            //console.log(mat[0])
+ 
+            function turtle() {
+                var points = [];
+                points.push( new THREE.Vector3( 0, 0, 0 ) );
+ 
+                translate(width / 2, height);
+                for (var i = 0; i < sentence.length; i++) {
+                    var current = sentence.charAt(i);
+ 
+                    if (current == 'F') {
+                        
+                        
+                        
+                    } else if (current == 'G') {
+                    line(0, 0, 0, -len);
+                    translate(0, -len);
+                    } else if (current == '+') {
+                    rotate(angle);
+                    } else if (current == '-') {
+                    rotate(-angle);
+                    } else if (current == '[') {
+                    push();
+                    } else if (current == ']') {
+                    pop();
+                    }
+                }
+            }
+ 
+ 
+ 
+ 
+            controls.update();
+ 
+            var animate = function () {
+                requestAnimationFrame( animate );
+ 
+                /*cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                */
+                controls.update();
+                renderer.render( scene, camera );
+                
+            };
+ 
+            animate();
+        </script>
+    </body>
+</html>
+
