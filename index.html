@@ -83,63 +83,61 @@
  
             function turtle() {
                 let turtle = {
-                    pos: mat.clone(),
-                    rot: mat.clone(),
-                    rotVec3: new THREE.Vector3(0,0,0)
+                    len: len,
+                    pos: new THREE.Vector3(0,0,0),
+                    rot: new THREE.Vector3(0,0,0)
                 };
-                //turtle.pos.makeTranslation(0,len/2,0);
-                //let turtle = geometry.clone();
-                //turtle.scale(1,len,1);
                 
                 let turtleHistory = [];
                 turtleHistory.push(turtle);
-                //translate(width / 2, height);
                 
-                //len *= 0.99;
                 for (let i = 0; i < sentence.length; i++) {    
                     let current = sentence.charAt(i);
-                    turtle = turtleHistory[turtleHistory.length -1];
                     
-                    //console.log(turtleHistory);
+                    geometry = new THREE.CylinderGeometry(1, 1, len, 32 );
                     
                     if (current == 'F') {
-                        geometry.applyMatrix4(turtle.rot);
-                        geometry.translate(0,len,0);
-                        //geometry.applyMatrix4(turtle.pos);
-                        turtle.pos.makeTranslation(len*Math.cos(turtle.rotVec3.x),len*Math.cos(turtle.rotVec3.y),len*Math.cos(turtle.rotVec3.z));
-                        //console.log(turtle.rot.elements);
-                        scene.add(new THREE.Mesh( geometry.clone(), material ));
+                        turtle.len *= 0.5;
+                        turtle.pos.x += len*Math.cos(turtle.rot.z);
+                        turtle.pos.y += len*Math.sin(turtle.rot.y);
+                        turtle.pos.z += len*Math.cos(turtle.rot.x);
+                        geometry.translate(turtle.pos.x,turtle.pos.y,turtle.pos.z);
+                        geometry.rotateX(turtle.rot.z);
+                        
+                        scene.add(new THREE.Mesh( geometry, material ));
                     } else if (current == 'X') {
-                        turtle.pos.makeTranslation(len*Math.cos(turtle.rotVec3.x),len*Math.cos(turtle.rotVec3.y),len*Math.cos(turtle.rotVec3.z));
+                        turtle.len *= 0.5;
+                        turtle.pos.x += len*Math.cos(turtle.rot.z);
+                        turtle.pos.y += len*Math.sin(turtle.rot.y);
+                        turtle.pos.z += len*Math.cos(turtle.rot.x);
                     } else if (current == '+') {
-                        turtle.rot.makeRotationX(angle);
-                        turtle.rotVec3.x += angle;
+                        turtle.rot.x += angle; //ska antagligen egentligen vara y
                     } else if (current == '-') {
-                        turtle.rot.makeRotationX(-angle);
-                        turtle.rotVec3.x -= angle;
-                    } /*else if (current == '&') {
-                        turtle.rot.makeRotationX(angle);
+                        turtle.rot.x -= angle; //ska antagligen egentligen vara y
+                    } else if (current == '&') {
+                        turtle.rot.x += angle;
                     } else if (current == '^') {
-                        turtle.rot.makeRotationX(-angle);
+                        turtle.rot.x -= angle;
                     } else if (current == '%') {
-                        turtle.rot.makeRotationZ(angle);
+                        turtle.rot.z += angle;
                     } else if (current == '/') {
-                        turtle.rot.makeRotationZ(-angle);
+                        turtle.rot.z -= angle;
                     } else if (current == '|') {
-                        turtle.rot.makeRotationY(Math.PI);
-                    } */
-                    else if (current == '[') {
+                        turtle.rot.y += Math.PI;
+                    } else if (current == '[') {
                         turtleHistory.push(turtle);
+                        turtle = turtleHistory[turtleHistory.length -1];
                     } else if (current == ']') {
                         turtleHistory.pop();
+                        turtle = turtleHistory[turtleHistory.length -1];
                     }
                 }
             }
  
             generate();
             generate();
-            //generate();
-            //generate();
+            generate();
+            generate();
  
             controls.update();
  
