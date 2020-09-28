@@ -16,34 +16,40 @@
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
+            
+            var controls = new THREE.OrbitControls( camera, renderer.domElement );
  
-            var angle;
+            camera.position.z = 10;
+ 
+            var angle = 22.5 * Math.PI/180;
             var axiom = 'X';
             var sentence = axiom;
-            var len = 100;
+            var len = 1;
  
             var rules = [];
+            /*
             rules[0] = {
-            a: 'X',
-            b: 'F+[[F]-X]-F[-FX]+X'
+                a: 'F',
+                b: 'F+F-F-F+F'
+            };*/
+            
+            rules[0] = {
+                a: 'X',
+                b: 'F+[[F]-X]-F[-FX]+X'
             };
- 
+            
             rules[1] = {
-            a: 'F',
-            b: 'FF' 
+                a: 'F',
+                b: 'FF' 
             };
- 
-            //console.log(rules[0]);
- 
- 
  
             function generate() {
-                len *= 0.5;
-                var nextSentence = '';
-                for (var i = 0; i < sentence.length; i++) {
-                    var current = sentence.charAt(i);
-                    var found = false;
-                    for (var j = 0; j < rules.length; j++) {
+                //len *= 0.5;
+                let nextSentence = '';
+                for (let i = 0; i < sentence.length; i++) {
+                    let current = sentence.charAt(i);
+                    let found = false;
+                    for (let j = 0; j < rules.length; j++) {
                         if (current == rules[j].a) {
                             found = true;
                             nextSentence += rules[j].b;
@@ -51,139 +57,97 @@
                         }
                     }
                     if (!found) {
-                    nextSentence += current;
+                        nextSentence += current;
                     }
                 }
                 sentence = nextSentence;
+                
                 console.log(sentence);
-                //turtle();
+                turtle();
             }
  
-            generate();
-            generate();
-            /*
-            var geometry = new THREE.BoxGeometry();
-            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            var cube = new THREE.Mesh( geometry, material );
-            scene.add( cube );*/
+            
+            
  
- 
-            /*
-            var material = new THREE.LineBasicMaterial({
-                color: 0x00ff00
-            });
- 
- 
-            var points = [];
-            points.push( new THREE.Vector3( - 10, 0, 0 ) );
-            points.push( new THREE.Vector3( 0, 10, 0 ) );
-            //points.push( new THREE.Vector3( 10, 0, 0 ) );
- 
-            points.push( new THREE.Vector3( 0, -10, 0 ) );
-            points.push( new THREE.Vector3( 10, 0, 0 ) );
- 
-            var geometry = new THREE.BufferGeometry().setFromPoints( points );
- 
-            line = new THREE.Line( geometry, material );
-            scene.add( line );
- 
-            points.pop();
-            points.push( new THREE.Vector3( 0, 0, 10 ) );
- 
-            var geometry = new THREE.BufferGeometry().setFromPoints( points );
- 
-            line = new THREE.Line( geometry, material );
-            scene.add( line );*/
- 
-            var controls = new THREE.OrbitControls( camera, renderer.domElement );
- 
- 
-            camera.position.z = 10;
- 
+            
             var mat = [];
  
             mat = new THREE.Matrix4();
- 
             mat.set( 1,0,0,0,
-                        0,1,0,0,
-                        0,0,1,0,
-                        0,0,0,1);
- 
-            console.log(mat);
- 
-            mat.makeRotationX(Math.PI/2);
- 
- 
-                        
-            
- 
-            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            var points = [];
-            points.push( new THREE.Vector3( 0, 0, 0 ) );
- 
-            points.push( new THREE.Vector3( 0, 1, 0 ) );
- 
-            var geometry = new THREE.BufferGeometry().setFromPoints( points );
- 
- 
- 
-            line = new THREE.Line( geometry, material );
-            scene.add( line );
- 
- 
-            var geometry = new THREE.CylinderGeometry(1, 1, 2, 32 );
+                    0,1,0,0,
+                    0,0,1,0,
+                    0,0,0,1);
+
+            let geometry = new THREE.CylinderGeometry(1, 1, len, 32 );
             var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-            var cylinder = new THREE.Mesh( geometry, material );
- 
-            //cylinder.translate(THREE.Vector3.setFromMatrixPosition(mat[0]));
- 
-            scene.add( cylinder );
-            
-            
- 
-            //console.log(mat[0])
  
             function turtle() {
-                var points = [];
-                points.push( new THREE.Vector3( 0, 0, 0 ) );
- 
-                translate(width / 2, height);
-                for (var i = 0; i < sentence.length; i++) {
-                    var current = sentence.charAt(i);
- 
+                let turtle = {
+                    pos: mat.clone(),
+                    rot: mat.clone(),
+                    rotVec3: new THREE.Vector3(0,0,0)
+                };
+                //turtle.pos.makeTranslation(0,len/2,0);
+                //let turtle = geometry.clone();
+                //turtle.scale(1,len,1);
+                
+                let turtleHistory = [];
+                turtleHistory.push(turtle);
+                //translate(width / 2, height);
+                
+                //len *= 0.99;
+                for (let i = 0; i < sentence.length; i++) {    
+                    let current = sentence.charAt(i);
+                    turtle = turtleHistory[turtleHistory.length -1];
+                    
+                    //console.log(turtleHistory);
+                    
                     if (current == 'F') {
-                        
-                        
-                        
-                    } else if (current == 'G') {
-                    line(0, 0, 0, -len);
-                    translate(0, -len);
+                        geometry.applyMatrix4(turtle.rot);
+                        geometry.translate(0,len,0);
+                        //geometry.applyMatrix4(turtle.pos);
+                        turtle.pos.makeTranslation(len*Math.cos(turtle.rotVec3.x),len*Math.cos(turtle.rotVec3.y),len*Math.cos(turtle.rotVec3.z));
+                        //console.log(turtle.rot.elements);
+                        scene.add(new THREE.Mesh( geometry.clone(), material ));
+                    } else if (current == 'X') {
+                        turtle.pos.makeTranslation(len*Math.cos(turtle.rotVec3.x),len*Math.cos(turtle.rotVec3.y),len*Math.cos(turtle.rotVec3.z));
                     } else if (current == '+') {
-                    rotate(angle);
+                        turtle.rot.makeRotationX(angle);
+                        turtle.rotVec3.x += angle;
                     } else if (current == '-') {
-                    rotate(-angle);
-                    } else if (current == '[') {
-                    push();
+                        turtle.rot.makeRotationX(-angle);
+                        turtle.rotVec3.x -= angle;
+                    } /*else if (current == '&') {
+                        turtle.rot.makeRotationX(angle);
+                    } else if (current == '^') {
+                        turtle.rot.makeRotationX(-angle);
+                    } else if (current == '%') {
+                        turtle.rot.makeRotationZ(angle);
+                    } else if (current == '/') {
+                        turtle.rot.makeRotationZ(-angle);
+                    } else if (current == '|') {
+                        turtle.rot.makeRotationY(Math.PI);
+                    } */
+                    else if (current == '[') {
+                        turtleHistory.push(turtle);
                     } else if (current == ']') {
-                    pop();
+                        turtleHistory.pop();
                     }
                 }
             }
  
- 
- 
+            generate();
+            generate();
+            //generate();
+            //generate();
  
             controls.update();
  
             var animate = function () {
                 requestAnimationFrame( animate );
  
-                /*cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
-                */
                 controls.update();
-                renderer.render( scene, camera );
-                
+                renderer.render( scene, camera );               
             };
  
             animate();
