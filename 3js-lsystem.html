@@ -30,7 +30,7 @@
 			var rules = [];
 			rules[0] = {
 			a: 'F',
-			b: 'F[−F]F[+F][F]'
+			b: 'FF-[-F+F+F]+[+F-F-F]'
 			};
 
 			/*rules[1] = {
@@ -73,7 +73,7 @@
                                                              0, 0, 1, 0,
                                                              0, -1, 0, 0,
                                                              0, 0, 0, 1));
-                var edgeGeometry = new THREE.CylinderGeometry(0.05, 0.05, direction.length(), 8, 1); // ändra sen till turtle.len
+                var edgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, direction.length(), 8, 1); // ändra sen till turtle.len
                 var edge = new THREE.Mesh(edgeGeometry, material);
                 edge.applyMatrix4(orientation);
                 // position based on midpoints - there may be a better solution than this
@@ -254,7 +254,7 @@
             generate();
             generate();
             generate();
-            generate();
+            //generate();
             turtle();
             
 			//var point1 = new THREE.Vector3(1,0,0);
@@ -266,7 +266,6 @@
 
 			var animate = function () {
 				requestAnimationFrame( animate );
-
 				controls.update();
 				renderer.render( scene, camera );
 				
