@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>My first three.js app</title>
+		<title>Lindenmayer System</title>
 		<style>
 			body { margin: 0; }
 			canvas { display: block; }
@@ -10,43 +10,42 @@
 		<script src="three.js-master/build/three.js"></script>
 		<script src="three.js-master/examples/js/controls/OrbitControls.js"></script>
 		<script>
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			let scene = new THREE.Scene();
+			let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-			var renderer = new THREE.WebGLRenderer();
+			let renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
 			let controls = new THREE.OrbitControls( camera, renderer.domElement );
  
-            camera.position.y = 10;
-            camera.position.z = 15;
+            camera.position.z = 25;
  
-            let angle = 22.5 * Math.PI/180;
-            let axiom = 'F';
+            let angle = 22.5 * Math.PI/180; // Conversion from degrees to radians
+            let n = 5; // Number of iterations when generating sentence
+            let axiom = 'X';
             let sentence = axiom;
-            let len = 5;
 
-			var rules = [];
+			let rules = [];
+            
 			rules[0] = {
-			a: 'F',
-			b: 'FF-[-F+F+F]+[+F-F-F]'
+                a: 'X',
+                b: 'F-[[X]+X]+F[+FX]-X'
 			};
 
-			/*rules[1] = {
-			a: 'F',
-			b: 'FF' 
-			};*/
+			rules[1] = {
+                a: 'F',
+                b: 'FF' 
+			};
 
 
-
+            // Generate sentence from rules/grammar
 			function generate() {
-				//len *= 0.5;
-				var nextSentence = '';
-				for (var i = 0; i < sentence.length; i++) {
-					var current = sentence.charAt(i);
-					var found = false;
-					for (var j = 0; j < rules.length; j++) {
+				let nextSentence = '';
+				for (let i = 0; i < sentence.length; i++) {
+					let current = sentence.charAt(i);
+					let found = false;
+					for (let j = 0; j < rules.length; j++) {
 						if (current == rules[j].a) {
 							found = true;
 							nextSentence += rules[j].b;
@@ -58,23 +57,22 @@
 					}
 				}
 				sentence = nextSentence;
-				console.log(sentence);
-				//turtle();
+				//console.log(sentence);
 			}
             
 
             let material = new THREE.MeshBasicMaterial( {color: 0xff5733} );
             
             function cylinderMesh(pointX, pointY, material) {
-                var direction = new THREE.Vector3().subVectors(pointY, pointX);
-                var orientation = new THREE.Matrix4();
+                let direction = new THREE.Vector3().subVectors(pointY, pointX);
+                let orientation = new THREE.Matrix4();
                 orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
                 orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
                                                              0, 0, 1, 0,
                                                              0, -1, 0, 0,
                                                              0, 0, 0, 1));
-                var edgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, direction.length(), 8, 1); // ändra sen till turtle.len
-                var edge = new THREE.Mesh(edgeGeometry, material);
+                let edgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, direction.length(), 8, 1);
+                let edge = new THREE.Mesh(edgeGeometry, material);
                 edge.applyMatrix4(orientation);
                 // position based on midpoints - there may be a better solution than this
                 edge.position.x = (pointY.x + pointX.x) / 2;
@@ -90,121 +88,62 @@
                     pos: new THREE.Vector3(0,0,0),
                     u: new THREE.Vector3(0,1,0),
                     l: new THREE.Vector3(1,0,0),
-                    h: new THREE.Vector3(0,0,1),
-                    len: len
+                    h: new THREE.Vector3(0,0,1)
                 };
                 
                 let turtleHistory = [];
-                let arrayLength = 0;
                 turtleHistory.push(turtle);
-                //arrayLength++;
+                let arrayLength = 1;
                 
                 for (let i = 0; i < sentence.length; i++) {    
                     let current = sentence.charAt(i);
 					
                     if (current == 'F') {
                         
-						turtle.len *= 0.8;
-						
 						let point1 = turtle.pos;
                         
-						var temp = turtle.u;
-						
-						//temp.x *= turtle.len;
-						//temp.y *= turtle.len;
-						//temp.z *= turtle.len;
+						let temp = turtle.u;
                         
-                        var point2 = new THREE.Vector3().addVectors(point1,temp);
+                        let point2 = new THREE.Vector3().addVectors(point1, temp);
                         
-                        scene.add(cylinderMesh(point1,point2,material));
+                        // Draw a cylinder between the two points
+                        scene.add(cylinderMesh(point1, point2, material));
                         
-                        turtle.pos = point2; // assignment funkar!
+                        turtle.pos = point2;
                         
                     } else if (current == 'X') {
-                        turtle.len *= 0.8;
-                        /*
-                        turtle.pos.x += turtle.len*Math.cos(turtle.rot.x);
-                        turtle.pos.y += turtle.len*Math.sin(turtle.rot.y);
-                        turtle.pos.z += turtle.len*Math.cos(turtle.rot.z);*/
                         
-                        var point1 = new THREE.Vector3();
-						point1 = turtle.pos;
-            
-						var point2 = new THREE.Vector3();
+                        let point1 = turtle.pos;
 
-						var temp = turtle.u;
+						let temp = turtle.u;
 						
-						//temp.x *= turtle.len;
-						//temp.y *= turtle.len;
-						//temp.z *= turtle.len;
-						
-                        point2.addVectors(point1,temp);
+                        let point2 = new THREE.Vector3().addVectors(point1, temp);
                         
                         turtle.pos = point2;
                         
                     } else if (current == '+') {						
-						var RuPos = new THREE.Matrix3();
-						RuPos.set(Math.cos(angle), Math.sin(angle),0,
-								-Math.sin(angle),Math.cos(angle),0,
-								0			,0			,1);
+						let RuPos = new THREE.Matrix3();
+						RuPos.set( Math.cos(angle), Math.sin(angle), 0,
+                                  -Math.sin(angle), Math.cos(angle), 0,
+                                   0		      , 0			   , 1);
+                        
                         turtle.h.applyMatrix3(RuPos);
                         turtle.l.applyMatrix3(RuPos);
                         turtle.u.applyMatrix3(RuPos);
-                        /*
-						var temprot = new THREE.Matrix3();
-						temprot.set(turtle.h.x	,turtle.l.x ,turtle.u.x,
-									turtle.h.y	,turtle.l.y	,turtle.u.y,
-									turtle.h.z	,turtle.l.z	,turtle.u.z);
-						
-						var res = new THREE.Matrix3();
-						res.multiplyMatrices(temprot,Ru);
-                        
-						turtle.h.x = res.elements[0];
-						turtle.h.y = res.elements[3];
-						turtle.h.z = res.elements[6];
-                        
-						turtle.l.x = res.elements[1];
-						turtle.l.y = res.elements[4];
-						turtle.l.z = res.elements[7];
-
-						turtle.u.x = res.elements[2];
-						turtle.u.y = res.elements[5];
-						turtle.u.z = res.elements[8];*/
 
                     } else if (current == '-') {
-                        var RuNeg = new THREE.Matrix3();
-						RuNeg.set(Math.cos(-angle), Math.sin(-angle),0,
-								-Math.sin(-angle),Math.cos(-angle),0,
-								0			,0			,1);
+                        let RuNeg = new THREE.Matrix3();
+						RuNeg.set( Math.cos(-angle), Math.sin(-angle), 0,
+                                  -Math.sin(-angle), Math.cos(-angle), 0,
+                                   0		       , 0               , 1);
                         turtle.h.applyMatrix3(RuNeg);
                         turtle.l.applyMatrix3(RuNeg);
                         turtle.u.applyMatrix3(RuNeg);
                         
-                        /*
-						var temprot = new THREE.Matrix3();
-						temprot.set(turtle.h.x	,turtle.l.x ,turtle.u.x,
-									turtle.h.y	,turtle.l.y	,turtle.u.y,
-									turtle.h.z	,turtle.l.z	,turtle.u.z);
-
-						var res = new THREE.Matrix3();
-						res.multiplyMatrices(temprot,Ru);
-                        
-						turtle.h.x = res.elements[0];
-						turtle.h.y = res.elements[3];
-						turtle.h.z = res.elements[6];
-                        
-						turtle.l.x = res.elements[1];
-						turtle.l.y = res.elements[4];
-						turtle.l.z = res.elements[7];
-
-						turtle.u.x = res.elements[2];
-						turtle.u.y = res.elements[5];
-						turtle.u.z = res.elements[8];*/
-                        
                     } else if (current == '&') {
-                        //turtle.rot.y += angle; //ska antagligen egentligen vara x för att följa samma grammar
+                        //turtle.rot.y += angle;
                     } else if (current == '^') {
-                        //turtle.rot.y -= angle; //ska antagligen egentligen vara x för att följa samma grammar
+                        //turtle.rot.y -= angle;
                     } else if (current == '%') {
                         //turtle.rot.z += angle;
                     } else if (current == '/') {
@@ -212,63 +151,39 @@
                     } else if (current == '|') {
                         //turtle.rot.y += Math.PI;
                     } else if (current == '[') {
-                       console.log('turtle: ', turtle);
-                        console.log('Innan push');
-                        for(let i = 0; i < arrayLength; i++)
-                            console.log(turtleHistory[i]);
-                        console.log('Slutet på array');
+                       
+                        let turtleCopy = JSON.parse(JSON.stringify(turtle)); // Using Json-methods to make deep copy
                         
-                       let turtleCopy = JSON.parse(JSON.stringify(turtle));
+                        // Convert copied vectors into being once again instances of THREE.Vector3
                         turtleCopy.u = new THREE.Vector3(turtleCopy.u.x,turtleCopy.u.y,turtleCopy.u.z);
                         turtleCopy.h = new THREE.Vector3(turtleCopy.h.x,turtleCopy.h.y,turtleCopy.h.z);
                         turtleCopy.l = new THREE.Vector3(turtleCopy.l.x,turtleCopy.l.y,turtleCopy.l.z);
-                        //console.log(turtleCopy);
-                        arrayLength = turtleHistory.push(turtleCopy); // Using Json-methods to make deep copy
                         
-                        console.log('Array efter push');
-                        for(let i = 0; i < arrayLength; i++)
-                            console.log(turtleHistory[i]);
-                        console.log('Slut på array');
+                        arrayLength = turtleHistory.push(turtleCopy); // Array length not updated internally but is returned by push()
                         
                         turtle = turtleHistory[arrayLength -1];
-                        //console.log(turtleHistory);
-                        /*
-                        console.log(turtleHistory[turtleHistory.length -2]);
-                        console.log(turtleHistory[turtleHistory.length -1]);*/
-                        //console.log(turtleHistory);
-                    } else if (current == ']') { //verkar fungera...
-                        /*console.log('Before pop: ', turtle);
-
-                        for(let i = 0; i < arrayLength; i++)
-                            console.log(turtleHistory[i]);
-                        */
+                       
+                    } else if (current == ']') {
+                       
                         turtleHistory.pop();
                         arrayLength--;
                         turtle = turtleHistory[arrayLength -1];
-                        //console.log('After pop: ', turtle);
                     }
                 }
             }
 
-			generate();
-            generate();
-            generate();
-            generate();
-            //generate();
+            // Generate sentence from grammar and draw structure with turtle graphics
+            for(let i = 0; i < n; i++)
+                generate();
             turtle();
-            
-			//var point1 = new THREE.Vector3(1,0,0);
-			//var point2 = new THREE.Vector3(2,0,0);
-			//scene.add(cylinderMesh(point1,point2));
 
 
 			controls.update();
 
-			var animate = function () {
+			let animate = function () {
 				requestAnimationFrame( animate );
 				controls.update();
-				renderer.render( scene, camera );
-				
+				renderer.render( scene, camera );	
 			};
 
 			animate();
