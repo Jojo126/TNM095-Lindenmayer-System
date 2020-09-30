@@ -30,7 +30,7 @@
 			var rules = [];
 			rules[0] = {
 			a: 'F',
-			b: 'FF-[-F+F+F]+[+F-F-F]'
+			b: 'F[−F]F[+F][F]'
 			};
 
 			/*rules[1] = {
@@ -87,17 +87,17 @@
             function turtle() {
                 let turtle = {
                     // Up, Left, Head, can be compared to yaw, pitch, roll
+                    pos: new THREE.Vector3(0,0,0),
                     u: new THREE.Vector3(0,1,0),
                     l: new THREE.Vector3(1,0,0),
                     h: new THREE.Vector3(0,0,1),
-                    len: len,
-                    pos: new THREE.Vector3(0,0,0)
+                    len: len
                 };
                 
                 let turtleHistory = [];
                 let arrayLength = 0;
                 turtleHistory.push(turtle);
-                arrayLength++;
+                //arrayLength++;
                 
                 for (let i = 0; i < sentence.length; i++) {    
                     let current = sentence.charAt(i);
@@ -143,11 +143,14 @@
                         turtle.pos = point2;
                         
                     } else if (current == '+') {						
-						var Ru = new THREE.Matrix3();
-						Ru.set(Math.cos(angle), Math.sin(angle),0,
+						var RuPos = new THREE.Matrix3();
+						RuPos.set(Math.cos(angle), Math.sin(angle),0,
 								-Math.sin(angle),Math.cos(angle),0,
 								0			,0			,1);
-
+                        turtle.h.applyMatrix3(RuPos);
+                        turtle.l.applyMatrix3(RuPos);
+                        turtle.u.applyMatrix3(RuPos);
+                        /*
 						var temprot = new THREE.Matrix3();
 						temprot.set(turtle.h.x	,turtle.l.x ,turtle.u.x,
 									turtle.h.y	,turtle.l.y	,turtle.u.y,
@@ -166,14 +169,18 @@
 
 						turtle.u.x = res.elements[2];
 						turtle.u.y = res.elements[5];
-						turtle.u.z = res.elements[8];
+						turtle.u.z = res.elements[8];*/
 
                     } else if (current == '-') {
-                        var Ru = new THREE.Matrix3();
-						Ru.set(Math.cos(-angle), Math.sin(-angle),0,
+                        var RuNeg = new THREE.Matrix3();
+						RuNeg.set(Math.cos(-angle), Math.sin(-angle),0,
 								-Math.sin(-angle),Math.cos(-angle),0,
 								0			,0			,1);
-
+                        turtle.h.applyMatrix3(RuNeg);
+                        turtle.l.applyMatrix3(RuNeg);
+                        turtle.u.applyMatrix3(RuNeg);
+                        
+                        /*
 						var temprot = new THREE.Matrix3();
 						temprot.set(turtle.h.x	,turtle.l.x ,turtle.u.x,
 									turtle.h.y	,turtle.l.y	,turtle.u.y,
@@ -192,7 +199,7 @@
 
 						turtle.u.x = res.elements[2];
 						turtle.u.y = res.elements[5];
-						turtle.u.z = res.elements[8];
+						turtle.u.z = res.elements[8];*/
                         
                     } else if (current == '&') {
                         //turtle.rot.y += angle; //ska antagligen egentligen vara x för att följa samma grammar
@@ -205,7 +212,12 @@
                     } else if (current == '|') {
                         //turtle.rot.y += Math.PI;
                     } else if (current == '[') {
-                       
+                       console.log('turtle: ', turtle);
+                        console.log('Innan push');
+                        for(let i = 0; i < arrayLength; i++)
+                            console.log(turtleHistory[i]);
+                        console.log('Slutet på array');
+                        
                        let turtleCopy = JSON.parse(JSON.stringify(turtle));
                         turtleCopy.u = new THREE.Vector3(turtleCopy.u.x,turtleCopy.u.y,turtleCopy.u.z);
                         turtleCopy.h = new THREE.Vector3(turtleCopy.h.x,turtleCopy.h.y,turtleCopy.h.z);
@@ -213,28 +225,36 @@
                         //console.log(turtleCopy);
                         arrayLength = turtleHistory.push(turtleCopy); // Using Json-methods to make deep copy
                         
+                        console.log('Array efter push');
+                        for(let i = 0; i < arrayLength; i++)
+                            console.log(turtleHistory[i]);
+                        console.log('Slut på array');
+                        
                         turtle = turtleHistory[arrayLength -1];
                         //console.log(turtleHistory);
                         /*
                         console.log(turtleHistory[turtleHistory.length -2]);
                         console.log(turtleHistory[turtleHistory.length -1]);*/
                         //console.log(turtleHistory);
-                    } else if (current == ']') {
-                        //turtle = turtleHistory[turtleHistory.length -1];
-                        //console.log(turtleHistory[0]);
-                        //console.log(turtleHistory[1]);
+                    } else if (current == ']') { //verkar fungera...
+                        /*console.log('Before pop: ', turtle);
+
+                        for(let i = 0; i < arrayLength; i++)
+                            console.log(turtleHistory[i]);
+                        */
                         turtleHistory.pop();
                         arrayLength--;
                         turtle = turtleHistory[arrayLength -1];
+                        //console.log('After pop: ', turtle);
                     }
                 }
             }
 
 			generate();
             generate();
-            //generate();
-            //generate();
-            //generate();
+            generate();
+            generate();
+            generate();
             turtle();
             
 			//var point1 = new THREE.Vector3(1,0,0);
