@@ -17,6 +17,16 @@
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
+            // Resize canvas if/when window is resized
+            window.addEventListener( 'resize', onWindowResize, false );
+            
+            function onWindowResize(){
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+            
 			let controls = new THREE.OrbitControls( camera, renderer.domElement );
 			
             camera.position.z = 25;
@@ -154,6 +164,7 @@
                         turtle.pos = point2;
                     }
                     // Samma som F?
+                    // Eller rita som F men utan att uppdatera turtle?
                     else if (current == 'G') {
 						let point1 = turtle.pos;
                         
