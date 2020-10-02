@@ -20,26 +20,35 @@
 			let controls = new THREE.OrbitControls( camera, renderer.domElement );
 			
             camera.position.z = 25;
+
+
             //camera.position.y = 25;
  			//camera.lookAt(new Vector3(0,0,0))
-            let angle = 25.7 * Math.PI/180; // Conversion from degrees to radians
-			let n = 7; // Number of iterations when generating sentence
-            let axiom = 'X'; 
+            let angle = 22 * Math.PI/180; // Conversion from degrees to radians
+			let n = 4; // Number of iterations when generating sentence
+            let axiom = 'F'; 
             let sentence = axiom;
             
 			//let len = 10;
 
 			var rules = [];
+			 
+			
 			rules[0] = {
-			a: 'X',
-			b: 'F[+X][-X]FX'
+			a: 'F',
+			b: 'F[+F]F[-F]/F',
+			c: 'F[+F]^F',
+			d: 'F[-F]&F'
 			};
 
-			rules[1] = {
+            /*
+			rules[0] = {
 			a: 'F',
-			b: 'FF' 
-			};
-			
+			b: 'F[+F]F[-F]/F',
+			c: 'F[+F]^F',
+			d: 'F+F/F'
+			};*/
+
 
 			//console.log(rules[0]);
 
@@ -54,7 +63,18 @@
 					for (var j = 0; j < rules.length; j++) {
 						if (current == rules[j].a) {
 							found = true;
-							nextSentence += rules[j].b;
+							let rand = Math.floor(Math.random() * 101)
+							//rand = 100;
+							if(rand < 33){
+								nextSentence += rules[j].b;
+							} else if(rand < 66){
+								nextSentence += rules[j].c;
+							}else{
+								nextSentence += rules[j].d;
+							}
+							//console.log(rand);
+
+							
 							break;
 						}
 					}
@@ -63,13 +83,13 @@
 					}
 				}
 				sentence = nextSentence;
-				//console.log(sentence);
+				console.log(sentence);
 				//turtle();
 			}
 
 			let material = new THREE.MeshBasicMaterial( {color: 0xff5733} );
 
-			function cylinderMesh(pointX, pointY, material) {
+			function cylinderMesh(pointX, pointY, material,i) {
                 let direction = new THREE.Vector3().subVectors(pointY, pointX);
                 let orientation = new THREE.Matrix4();
                 orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
@@ -96,17 +116,23 @@
                     // Up, Left, Head, can be compared to yaw, pitch, roll
                     u: new THREE.Vector3(0,1,0),
                     l: new THREE.Vector3(1,0,0),
-                    h: new THREE.Vector3(0,0,1),
+                    h: new THREE.Vector3(0,0,-1),
                     
-                    pos: new THREE.Vector3(0,0,0),
+                    pos: new THREE.Vector3(0,-10,0),
 					
-					hlu: new THREE.Matrix3(),
+					hlu: new THREE.Matrix3()
 					
                 };
+				
 
-				turtle.hlu.set(	0,1,0,
-								1,0,0,
-								0,0,-1);
+				//let hlu = new THREE.Matrix3();
+
+				turtle.hlu.set(
+						0, 1, 0,
+						1, 0, 0,
+						0, 0, -1);
+					
+				
 
                 
                 let turtleHistory = [];
@@ -118,17 +144,35 @@
                     let current = sentence.charAt(i);
 					//console.log(turtle.len);
                     
+				if(i>0){
+					material = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
+					}
+
+
                     if (current == 'F') {
 						let point1 = turtle.pos;
-						let temp = turtle.u;						
-						//let temp = new THREE.Vector3(turtle.h[0],turtle.l[0],turtle.u[0]);						
+						//let temp = turtle.u;						
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);						
         
 						let point2 = new THREE.Vector3().addVectors(point1, temp);
 
-						scene.add(cylinderMesh(point1,point2,material));
+						scene.add(cylinderMesh(point1,point2,material,i));
+
+						
 
                         turtle.pos = point2;
-                        
+                    } else if (current == 'G') {
+						let point1 = turtle.pos;
+						//let temp = turtle.u;						
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);						
+        
+						let point2 = new THREE.Vector3().addVectors(point1, temp);
+
+						scene.add(cylinderMesh(point1,point2,material,i));
+
+
+                        turtle.pos = point2;
+
                     } else if (current == 'X') {
                         let point1 = turtle.pos;
 
@@ -137,7 +181,7 @@
                         let point2 = new THREE.Vector3().addVectors(point1, temp);
                         
                         turtle.pos = point2;
-                    } else if (current == '+') {
+                    } else if (current == '-') {
 						//.rot.x += angle; //ska antagligen egentligen vara y för att följa samma grammar
 						
 						let RuPos = new THREE.Matrix3();
@@ -148,10 +192,10 @@
 						turtle.h.applyMatrix3(RuPos);
                         turtle.l.applyMatrix3(RuPos);
                         turtle.u.applyMatrix3(RuPos);
-						
-						//turtle.hlu.multiply(RuPos);
 
-                    } else if (current == '-') {
+						turtle.hlu.multiply(RuPos);
+
+                    } else if (current == '+') {
 
                         let RuNeg = new THREE.Matrix3();
 						RuNeg.set( Math.cos(-angle), Math.sin(-angle), 0,
@@ -161,7 +205,7 @@
                         turtle.l.applyMatrix3(RuNeg);
                         turtle.u.applyMatrix3(RuNeg);
 
-						//turtle.hlu.multiply(RuNeg);
+						turtle.hlu.multiply(RuNeg);
 
 
                     } else if (current == '&') {
@@ -172,8 +216,9 @@
                         turtle.h.applyMatrix3(RlPos);
                         turtle.l.applyMatrix3(RlPos);
                         turtle.u.applyMatrix3(RlPos);
+					
 
-						//turtle.hlu.multiply(RlPos);
+						turtle.hlu.multiply(RlPos);
 
                     } else if (current == '^') {
                         let Rlneg = new THREE.Matrix3();
@@ -184,10 +229,10 @@
                         turtle.l.applyMatrix3(Rlneg);
                         turtle.u.applyMatrix3(Rlneg);
 
-						//turtle.hlu.multiply(Rlneg);
+						turtle.hlu.multiply(Rlneg);
+						//console.log("hej");
 
-
-                    } else if (current == '\\') {
+                    } else if (current == '/') {
                         let RhPos = new THREE.Matrix3();
 						RhPos.set(	1	,0					,0,
                                 0	,Math.cos(angle)	,-Math.sin(angle),
@@ -196,9 +241,9 @@
                         turtle.l.applyMatrix3(RhPos);
                         turtle.u.applyMatrix3(RhPos);
 
-						//turtle.hlu.multiply(RhPos);
+						turtle.hlu.multiply(RhPos);
 
-                    } else if (current == '/') {
+                    } else if (current == '\\') {
                         let Rhneg = new THREE.Matrix3();
 						Rhneg.set(	1	,0					,0,
                                 	0	,Math.cos(-angle)	,-Math.sin(-angle),
@@ -207,7 +252,7 @@
                         turtle.l.applyMatrix3(Rhneg);
                         turtle.u.applyMatrix3(Rhneg);
 						
-						//turtle.hlu.multiply(Rhneg);
+						turtle.hlu.multiply(Rhneg);
 
                     } else if (current == '|') {
                         let Ru180 = new THREE.Matrix3();
@@ -219,7 +264,7 @@
                         turtle.l.applyMatrix3(Ru180);
                         turtle.u.applyMatrix3(Ru180);
 						
-						//turtle.hlu.multiply(Ru180);
+						turtle.hlu.multiply(Ru180);
 
                     } else if (current == '[') {
                         let turtleCopy = JSON.parse(JSON.stringify(turtle)); // Using Json-methods to make deep copy
@@ -228,8 +273,19 @@
                         turtleCopy.u = new THREE.Vector3(turtleCopy.u.x,turtleCopy.u.y,turtleCopy.u.z);
                         turtleCopy.h = new THREE.Vector3(turtleCopy.h.x,turtleCopy.h.y,turtleCopy.h.z);
                         turtleCopy.l = new THREE.Vector3(turtleCopy.l.x,turtleCopy.l.y,turtleCopy.l.z);
+						
+						let hlu = turtleCopy.hlu;
+						
+						turtleCopy.hlu = new THREE.Matrix3();
+						
+
+                        turtleCopy.hlu.set(	hlu.elements[0],hlu.elements[3],hlu.elements[6],
+											hlu.elements[1],hlu.elements[4],hlu.elements[7],
+											hlu.elements[2],hlu.elements[5],hlu.elements[8]);
+						
+						
                         
-                        arrayLength = turtleHistory.push(turtleCopy); // Array length not updated internally but is returned by push()
+						arrayLength = turtleHistory.push(turtleCopy); // Array length not updated internally but is returned by push()
                         
                         turtle = turtleHistory[arrayLength -1];
                     } else if (current == ']') {
@@ -252,6 +308,7 @@
 				/*cube.rotation.x += 0.01;
 				cube.rotation.y += 0.01;
 				*/
+				//console.log(camera.lookAt);
 				controls.update();
 				renderer.render( scene, camera );
 				
