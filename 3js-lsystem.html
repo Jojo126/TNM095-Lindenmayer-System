@@ -40,7 +40,7 @@
 			 
 			rules[0] = {
 			a: 'F',
-			b: 'F[+F]F[-F]/F',
+			b: 'F[+F]F[-F]/F´',
 			c: 'F[+F]^F',
 			d: 'F[-F]&F'
 			};
@@ -123,11 +123,7 @@
                 // Stack
                 let turtleHistory = [turtle];
                 
-                
-                for (let i = 0; i < sentence.length; i++) {    
-                    let current = sentence.charAt(i);
-                    
-                    // Rotational matrices
+                // Rotational matrices
                     let RuPos = new THREE.Matrix3().set( Math.cos(angle), Math.sin(angle), 0,
                                                         -Math.sin(angle), Math.cos(angle), 0,
                                                          0			    , 0		         , 1);
@@ -149,12 +145,16 @@
                     let Ru180 = new THREE.Matrix3().set( Math.cos(Math.PI), Math.sin(Math.PI), 0,
                                                         -Math.sin(Math.PI), Math.cos(Math.PI), 0,
                                                          0		          , 0		         , 1);
+                
+                for (let i = 0; i < sentence.length; i++) {    
+                    let current = sentence.charAt(i);
+        
 
                     // Go forward one step. Draw a cylinder along path.
                     if (current == 'F') {
 						let point1 = turtle.pos;
                         
-						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);						
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);						
         
 						let point2 = new THREE.Vector3().addVectors(point1, temp);
 
@@ -167,7 +167,7 @@
                     else if (current == 'G') {
 						let point1 = turtle.pos;
                         
-						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);						
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);						
         
 						let point2 = new THREE.Vector3().addVectors(point1, temp);
 
@@ -179,7 +179,7 @@
                     else if (current == 'X' || current == 'f') {
                         let point1 = turtle.pos;
 
-						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);	
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);	
                         
                         let point2 = new THREE.Vector3().addVectors(point1, temp);
 						
@@ -216,7 +216,7 @@
                     else if (current == '$') {
                         // L = (V x H) / |V x H|
                         let V = new THREE.Vector3(0,1,0); // V = direction opposite to gravity
-                        let H = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[3],turtle.hlu.elements[6]);
+                        let H = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);
                         let L = V.cross(H).divide(V.cross(H).normalize());
                         
                         let U = H.cross(L);
@@ -224,6 +224,10 @@
                         turtle.hlu.set(H.x, L.x, U.x,
                                        H.y, L.y, U.y,
                                        H.z, L.z, U.z,);
+                    }
+                    // Decrement the diameter of segments
+                    else if (current == '!') {
+                        
                     }
                     // Increment the current color index
                     else if (current == '´') {
