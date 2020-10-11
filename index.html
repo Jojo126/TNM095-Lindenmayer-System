@@ -242,7 +242,7 @@
 					}
 				}
 				sentence = nextSentence;
-				//console.log(sentence);
+				console.log(sentence);
 			}
             
             let colorMaterial = [];
@@ -429,6 +429,9 @@
             gui.add(obj,'Generate');
 
             function GenDraw() {
+                
+                console.clear();
+                
                 if(typeof folder1 !== 'undefined') {
                     gui.removeFolder('Grammar');
                 }
