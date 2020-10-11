@@ -31,14 +31,25 @@
 
             // Creating a GUI with options.
             var gui = new dat.GUI({name: 'My GUI'});
-            var folder1 = gui.addFolder('Flow Field');
+            let folder1;
+                        
+            dat.GUI.prototype.removeFolder = function(name) {
+                var folder = this.__folders[name];
+                if (!folder) {
+                    return;
+                }
+                folder.close();
+                this.__ul.removeChild(folder.domElement.parentNode);
+                delete this.__folders[name];
+                this.onResize();
+            }
 
 			let controls = new THREE.OrbitControls( camera, renderer.domElement );
 			
             camera.position.z = 25;
 
 
-            let figureShape = {int: 1};
+            let figureShape = {Structure: 1};
             //1 == Stokastisk träd
             //2 == Träd
             //3 == 3D Hilbert curve
@@ -46,9 +57,8 @@
             //5 == Woven sphere
 
 
-            let controller = gui.add(figureShape, 'int',1,5,1);
+            let controller = gui.add(figureShape, 'Structure',1,5,1);
 
-            //console.log(figureShape);
             let rules = [];
             let axiom = 'F';
             let angle = 22 * Math.PI/180; // Conversion from degrees to radians
@@ -56,7 +66,7 @@
 
 
             function rulechange(){
-            if(figureShape.int == 1){
+            if(figureShape.Structure == 1){
                 angle = 22 * Math.PI/180; // Conversion from degrees to radians
                 n = 4; // Number of iterations when generating sentence
                 axiom = 'F'; 
@@ -71,7 +81,7 @@
                     dpro: 34,
                 };
 
-            } else if (figureShape.int == 2){
+            } else if (figureShape.Structure == 2){
 
                 angle = 22 * Math.PI/180; // Conversion from degrees to radians
                 n = 4; // Number of iterations when generating sentence
@@ -108,17 +118,19 @@
 
                 };
 
+                folder1 = gui.addFolder('Grammar');
+                folder1.open();
                 for(let ji = 0; ji < rules.length; ji++){
-                    gui.add(rules[ji],'a');
-                    gui.add(rules[ji],'b');
+                    folder1.add(rules[ji],'a');
+                    folder1.add(rules[ji],'b');
                 }
-
-            }else if (figureShape.int == 3){
+                
+            }else if (figureShape.Structure == 3){
 
                 //3D Hilbert curve (90,4)
 
                 angle = 90 * Math.PI/180; // Conversion from degrees to radians
-                n = 4; // Number of iterations when generating sentence
+                n = 3; // Number of iterations when generating sentence
                 axiom = 'A';
                 rules[0] = {
                 a: 'A',
@@ -145,7 +157,7 @@
                 
                 };
 
-            }else if (figureShape.int == 4){
+            }else if (figureShape.Structure == 4){
 
                 angle = 4 * Math.PI/180; // Conversion from degrees to radians
                 n = 12; // Number of iterations when generating sentence
@@ -175,7 +187,7 @@
                     bpro: 101 
 			    };
 
-            }else if (figureShape.int == 5){
+            }else if (figureShape.Structure == 5){
 
                 angle = 40 * Math.PI/180; // Conversion from degrees to radians
                 n = 5; // Number of iterations when generating sentence
@@ -400,11 +412,16 @@
                     }
                 }
             }
-            controller.onFinishChange(GenDraw);
+            //controller.onFinishChange(GenDraw);
             // Generate the sentence and draw the structure 
+            var obj = {Generate: GenDraw};
+            gui.add(obj,'Generate');
 
-
-            function GenDraw(){
+            function GenDraw() {
+                if(typeof folder1 !== 'undefined') {
+                    gui.removeFolder('Grammar');
+                }
+                
                 rulechange();
                 for( var i = scene.children.length - 1; i >= 0; i--) { 
                     obj = scene.children[i];
