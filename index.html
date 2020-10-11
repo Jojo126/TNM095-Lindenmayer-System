@@ -8,7 +8,8 @@
 	</head>
 	<body>
 		<script src="three.js-master/build/three.js"></script>
-		<script src="three.js-master/examples/js/controls/OrbitControls.js"></script>
+        <script src="three.js-master/examples/js/controls/OrbitControls.js"></script>
+        <script type="text/javascript" src="dat.gui.min.js"></script>
 		<script>
 			let scene = new THREE.Scene();
 			let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -17,38 +18,222 @@
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
+            // Resize canvas if/when window is resized
+            window.addEventListener( 'resize', onWindowResize, false );
+            
+            function onWindowResize(){
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+            
+
+            // Creating a GUI with options.
+            var gui = new dat.GUI({name: 'My GUI'});
+            let folder1;
+            
+            function createFolder() {
+                folder1 = gui.addFolder('Grammar');
+                folder1.open();
+                for(let ji = 0; ji < rules.length; ji++){
+                    folder1.add(rules[ji],'a');
+                    folder1.add(rules[ji],'b');
+                }
+            }
+                        
+            dat.GUI.prototype.removeFolder = function(name) {
+                var folder = this.__folders[name];
+                if (!folder) {
+                    return;
+                }
+                folder.close();
+                this.__ul.removeChild(folder.domElement.parentNode);
+                delete this.__folders[name];
+                this.onResize();
+            }
+
 			let controls = new THREE.OrbitControls( camera, renderer.domElement );
- 
+			
             camera.position.z = 25;
- 
-            let angle = 22.5 * Math.PI/180; // Conversion from degrees to radians
-            let n = 5; // Number of iterations when generating sentence
-            let axiom = 'X';
+
+
+            let figureShape = {Structure: 1,
+                              prev: 0};
+            
+            //1 == Stokastisk träd
+            //2 == Träd
+            //3 == 3D Hilbert curve
+            //4 == Fern
+            //5 == Woven sphere
+
+
+            let controller = gui.add(figureShape, 'Structure',1,5,1);
+
+            let rules = [];
+            let axiom = 'F';
+            let angle = 22 * Math.PI/180; // Conversion from degrees to radians
+            let n = 4; // Number of iterations when generating sentence 
+
+
+            function rulechange(){
+            if(figureShape.Structure == 1){
+                angle = 22 * Math.PI/180; // Conversion from degrees to radians
+                n = 4; // Number of iterations when generating sentence
+                axiom = 'F'; 
+            
+                rules[0] = {
+                    a: 'F',
+                    b: 'F´[+F´]F´[-F´]/F´',
+                    c: 'F´[+F´]^F´',
+                    d: 'F´+F´/F´',
+                    bpro: 33,
+                    cpro: 33,
+                    dpro: 34,
+                };
+                
+                //createFolder();
+
+            } else if (figureShape.Structure == 2){
+
+                angle = 22 * Math.PI/180; // Conversion from degrees to radians
+                n = 4; // Number of iterations when generating sentence
+                axiom = 'A';
+
+                //Tree(22,7)
+                rules[0] = {
+                a: 'A',
+                b: '[&FL!A]//////[&FL!A]///////[&FL!A]',
+                bpro: 101,
+                cpro:0,
+                };
+
+                rules[1] = {
+                a: 'F',
+                b: 'S/////F',
+                bpro: 101, 
+                cpro:0
+
+                };
+
+                rules[2] = {
+                a: 'S',
+                b: 'FL',
+                bpro: 101, 
+                cpro:0
+                };
+
+                rules[3] = {
+                a: 'L',
+                b: '[^^-L]L',
+                bpro: 101, 
+                cpro:0
+
+                };
+
+                //createFolder();
+                
+            }else if (figureShape.Structure == 3){
+
+                //3D Hilbert curve (90,4)
+
+                angle = 90 * Math.PI/180; // Conversion from degrees to radians
+                n = 3; // Number of iterations when generating sentence
+                axiom = 'A';
+                rules[0] = {
+                a: 'A',
+                b: 'B-F´+CF´C+F´-D&F´^D-F´+&&CF´C+F´+B//',
+                bpro: 101, 
+                };
+
+                rules[1] = {
+                a: 'B',
+                b: 'A&F´^CF´B^F´^D^^-F´-D^|F´^B|F´C^F´^A//',
+                bpro: 101, 
+                };
+
+                rules[2] = {
+                a: 'C',
+                b: '|D^|F´^B-F´+C^F´^A&&F´A&F´^C+F´+B^F´^D//',
+                bpro: 101, 
+                };
+
+                rules[3] = {
+                a: 'D',
+                b: '|CF´B-F´+B|F´A&F´^A&&F´B-F´+B|F´C//',
+                bpro: 101, 
+                
+                };
+                
+                //createFolder();
+
+            }else if (figureShape.Structure == 4){
+
+                angle = 4 * Math.PI/180; // Conversion from degrees to radians
+                n = 12; // Number of iterations when generating sentence
+                axiom = 'CCCF´';
+
+                rules[3] = {
+                    a: 'F',
+                    b: '[++++++++++++++CA]C^+C[--------------CB]C+CF´',
+                    bpro: 101 
+                };
+
+                rules[0] = {
+                    a: 'A',
+                    b: '[---------CC][+++++++++CC]C&&+A',
+                    bpro: 101 
+                };
+
+                rules[1] = {
+                    a: 'B',
+                    b: '[---------CC][+++++++++CC]C&&-B' ,
+                    bpro: 101 
+                };
+
+                rules[2] = {
+                    a: 'C',
+                    b: 'G´' ,
+                    bpro: 101 
+			    };
+                
+                //createFolder();
+
+            }else if (figureShape.Structure == 5){
+
+                angle = 40 * Math.PI/180; // Conversion from degrees to radians
+                n = 5; // Number of iterations when generating sentence
+                axiom = 'F';
+
+                rules[0] = {
+                    a: 'F',
+                    b: 'F´+F´&F´',
+                    bpro: 101
+                };
+
+                //createFolder();
+            }
+        }
             let sentence = axiom;
 
-			let rules = [];
-            
-			rules[0] = {
-                a: 'X',
-                b: 'F-[[X]+X]+F[+FX]-X'
-			};
-
-			rules[1] = {
-                a: 'F',
-                b: 'FF' 
-			};
-
-
-            // Generate sentence from rules/grammar
+			// Generate sentence from rules/grammar
 			function generate() {
+				
 				let nextSentence = '';
 				for (let i = 0; i < sentence.length; i++) {
-					let current = sentence.charAt(i);
+					let  current = sentence.charAt(i);
 					let found = false;
 					for (let j = 0; j < rules.length; j++) {
 						if (current == rules[j].a) {
 							found = true;
-							nextSentence += rules[j].b;
+                            let rand = Math.floor(Math.random() * 101)
+							if(rand < rules[j].bpro) {
+								nextSentence += rules[j].b;
+							} else if(rand < rules[j].bpro+rules[j].cpro) {
+								nextSentence += rules[j].c;
+							} else {
+								nextSentence += rules[j].d;
+							}							
 							break;
 						}
 					}
@@ -60,19 +245,27 @@
 				//console.log(sentence);
 			}
             
+            let colorMaterial = [];
+            colorMaterial[0] = new THREE.MeshBasicMaterial( {color: 0xec6610} );
+            colorMaterial[1] = new THREE.MeshBasicMaterial( {color: 0x3b484f} );
+            colorMaterial[2] = new THREE.MeshBasicMaterial( {color: 0x13283c} );
+            colorMaterial[3] = new THREE.MeshBasicMaterial( {color: 0x008081} );
+            colorMaterial[4] = new THREE.MeshBasicMaterial( {color: 0xffffff} );
 
-            let material = new THREE.MeshBasicMaterial( {color: 0xff5733} );
-            
-            function cylinderMesh(pointX, pointY, material) {
+
+
+            let currentColorIndex = 0;
+
+			function cylinderMesh(pointX, pointY, material,i) {
                 let direction = new THREE.Vector3().subVectors(pointY, pointX);
                 let orientation = new THREE.Matrix4();
                 orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
-                orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
-                                                             0, 0, 1, 0,
+                orientation.multiply(new THREE.Matrix4().set(1,  0, 0, 0,
+                                                             0,  0, 1, 0,
                                                              0, -1, 0, 0,
-                                                             0, 0, 0, 1));
+                                                             0,  0, 0, 1));
                 let edgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, direction.length(), 8, 1);
-                let edge = new THREE.Mesh(edgeGeometry, material);
+                let edge = new THREE.Mesh(edgeGeometry, colorMaterial[currentColorIndex]);
                 edge.applyMatrix4(orientation);
                 // position based on midpoints - there may be a better solution than this
                 edge.position.x = (pointY.x + pointX.x) / 2;
@@ -81,109 +274,191 @@
                 return edge;
             }
 
- 			
+
+            drawLeaf = function(position,hlu,stepSize) {
+                var pos = new THREE.Vector3(position.x, position.y, position.z);
+                var head = new THREE.Vector3(hlu.elements[0], hlu.elements[1], hlu.elements[2]);
+                var left = new THREE.Vector3(hlu.elements[3], hlu.elements[4], hlu.elements[5]);
+                var up = new THREE.Vector3(hlu.elements[6], hlu.elements[7], hlu.elements[8]);
+
+                var edge1 = left.clone().multiplyScalar(0.5).add(head).normalize().multiplyScalar(stepSize);
+                var edge2 = left.clone().multiplyScalar(0.5).negate().add(head).normalize().multiplyScalar(stepSize);
+                var diag = edge1.clone().add(edge2);
+                let leafVertices = [];
+
+                leafVertices.push(
+                    pos.x, pos.y, pos.z,
+                    (pos.clone().add(edge1)).x, (pos.clone().add(edge1)).y, (pos.clone().add(edge1)).z,
+                    (pos.clone().add(diag)).x, (pos.clone().add(diag)).y, (pos.clone().add(diag)).z,
+                    (pos.clone().add(diag)).x, (pos.clone().add(diag)).y, (pos.clone().add(diag)).z,
+                    (pos.clone().add(edge2)).x, (pos.clone().add(edge2)).y, (pos.clone().add(edge2)).z,
+                    pos.x, pos.y, pos.z,
+                );
+                var leafGeometry = new THREE.BufferGeometry();
+                leafGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( leafVertices, 3 ) );
+                var leafMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.DoubleSide } );
+                var leafMesh = new THREE.Mesh( leafGeometry, leafMaterial );
+                scene.add( leafMesh );
+            }
+
+
+
+			// Draw structure based on generated sentence
             function turtle() {
                 let turtle = {
+                    pos: new THREE.Vector3(0,-10,0),
                     // Up, Left, Head, can be compared to yaw, pitch, roll
-                    pos: new THREE.Vector3(0,0,0),
-                    u: new THREE.Vector3(0,1,0),
-                    l: new THREE.Vector3(1,0,0),
-                    h: new THREE.Vector3(0,0,1)
+					hlu: new THREE.Matrix3().set(0, 1, 0,
+                                                 1, 0, 0,
+                                                 0, 0, -1),
+                    len: 1,
+                    scalar: 1
                 };
+					
+                // Stack
+                let turtleHistory = [turtle];
                 
-                let turtleHistory = [];
-                turtleHistory.push(turtle);
-                let arrayLength = 1;
+                // Rotational matrices
+                let RuPos = new THREE.Matrix3().set( Math.cos(angle), Math.sin(angle), 0,
+                                                    -Math.sin(angle), Math.cos(angle), 0,
+                                                    0			    , 0		         , 1);
+                let RuNeg = new THREE.Matrix3().set( Math.cos(-angle), Math.sin(-angle), 0,
+                                                    -Math.sin(-angle), Math.cos(-angle), 0,
+                                                    0	  	         , 0               , 1);
+                let RlPos = new THREE.Matrix3().set(Math.cos(angle), 0, -Math.sin(angle),
+                                                    0			   , 1,  0              ,
+                                                    Math.sin(angle), 0,  Math.cos(angle));
+                let RlNeg = new THREE.Matrix3().set(Math.cos(-angle), 0, -Math.sin(-angle),
+                                                    0		        , 1,  0               ,
+                                                    Math.sin(-angle), 0,  Math.cos(-angle));
+                let RhPos = new THREE.Matrix3().set(1, 0              ,  0              ,
+                                                    0, Math.cos(angle), -Math.sin(angle),
+                                                    0, Math.sin(angle),  Math.cos(angle));
+                let RhNeg = new THREE.Matrix3().set(1, 0		       ,  0               ,
+                                                    0, Math.cos(-angle), -Math.sin(-angle),
+                                                    0, Math.sin(-angle),  Math.cos(-angle));
+                let Ru180 = new THREE.Matrix3().set( Math.cos(Math.PI), Math.sin(Math.PI), 0,
+                                                    -Math.sin(Math.PI), Math.cos(Math.PI), 0,
+                                                    0		          , 0		         , 1);
                 
                 for (let i = 0; i < sentence.length; i++) {    
                     let current = sentence.charAt(i);
-					
-                    if (current == 'F') {
-                        
+                    
+
+                    // Go forward one step. Draw a cylinder along path.
+                    if (current == 'F' || current == 'G') {
 						let point1 = turtle.pos;
+                        turtle.len *= turtle.scalar;
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);						
                         
-						let temp = turtle.u;
-                        
-                        let point2 = new THREE.Vector3().addVectors(point1, temp);
-                        
-                        // Draw a cylinder between the two points
-                        scene.add(cylinderMesh(point1, point2, material));
-                        
+                        temp.multiplyScalar(turtle.len);
+						let point2 = new THREE.Vector3().addVectors(point1, temp);
+
+						scene.add(cylinderMesh(point1,point2,colorMaterial[currentColorIndex],i));
+
                         turtle.pos = point2;
-                        
-                    } else if (current == 'X') {
-                        
+                    }
+                    
+                    // Go forward one step without drawing anything.
+                    else if (current == 'X' || current == 'f') {
                         let point1 = turtle.pos;
 
-						let temp = turtle.u;
-						
+						let temp = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);	
+                        
                         let point2 = new THREE.Vector3().addVectors(point1, temp);
-                        
+						
                         turtle.pos = point2;
-                        
-                    } else if (current == '+') {						
-						let RuPos = new THREE.Matrix3();
-						RuPos.set( Math.cos(angle), Math.sin(angle), 0,
-                                  -Math.sin(angle), Math.cos(angle), 0,
-                                   0		      , 0			   , 1);
-                        
-                        turtle.h.applyMatrix3(RuPos);
-                        turtle.l.applyMatrix3(RuPos);
-                        turtle.u.applyMatrix3(RuPos);
-
-                    } else if (current == '-') {
-                        let RuNeg = new THREE.Matrix3();
-						RuNeg.set( Math.cos(-angle), Math.sin(-angle), 0,
-                                  -Math.sin(-angle), Math.cos(-angle), 0,
-                                   0		       , 0               , 1);
-                        turtle.h.applyMatrix3(RuNeg);
-                        turtle.l.applyMatrix3(RuNeg);
-                        turtle.u.applyMatrix3(RuNeg);
-                        
+                    } 
+                    // Rotations around H, L or U
+                    else if (current == '-') {
+						turtle.hlu.multiply(RuPos);
+                    } else if (current == '+') {                        
+						turtle.hlu.multiply(RuNeg);
                     } else if (current == '&') {
-                        //turtle.rot.y += angle;
+						turtle.hlu.multiply(RlPos);
                     } else if (current == '^') {
-                        //turtle.rot.y -= angle;
-                    } else if (current == '%') {
-                        //turtle.rot.z += angle;
+						turtle.hlu.multiply(RlNeg);
                     } else if (current == '/') {
-                        //turtle.rot.z -= angle;
-                    } else if (current == '|') {
-                        //turtle.rot.y += Math.PI;
-                    } else if (current == '[') {
-                       
-                        let turtleCopy = JSON.parse(JSON.stringify(turtle)); // Using Json-methods to make deep copy
-                        
-                        // Convert copied vectors into being once again instances of THREE.Vector3
-                        turtleCopy.u = new THREE.Vector3(turtleCopy.u.x,turtleCopy.u.y,turtleCopy.u.z);
-                        turtleCopy.h = new THREE.Vector3(turtleCopy.h.x,turtleCopy.h.y,turtleCopy.h.z);
-                        turtleCopy.l = new THREE.Vector3(turtleCopy.l.x,turtleCopy.l.y,turtleCopy.l.z);
-                        
-                        arrayLength = turtleHistory.push(turtleCopy); // Array length not updated internally but is returned by push()
-                        
-                        turtle = turtleHistory[arrayLength -1];
-                       
-                    } else if (current == ']') {
-                       
+						turtle.hlu.multiply(RhPos);
+                    } else if (current == '\\') {						
+						turtle.hlu.multiply(RhNeg);
+                    } else if (current == '|') {						
+						turtle.hlu.multiply(Ru180);
+                    }
+                    // Save current state in stack
+                    else if (current == '[') {
+						turtleHistory.push({pos: turtle.pos, hlu: turtle.hlu.clone(),len: turtle.len,scalar: turtle.scalar});
+                        turtle = turtleHistory[turtleHistory.length -1];
+                    } 
+                    // Go back to last saved state in stack and remove it from stack
+                    else if (current == ']') {
                         turtleHistory.pop();
-                        arrayLength--;
-                        turtle = turtleHistory[arrayLength -1];
+                        turtle = turtleHistory[turtleHistory.length -1];
+                    }
+                    // Rotate the turtle to vertical.
+                    // Inte testad än
+                    else if (current == '$') {
+                        // L = (V x H) / |V x H|
+                        let V = new THREE.Vector3(0,1,0); // V = direction opposite to gravity
+                        let H = new THREE.Vector3(turtle.hlu.elements[0],turtle.hlu.elements[1],turtle.hlu.elements[2]);
+                        let L = V.cross(H).divide(V.cross(H).normalize());
+                        
+                        let U = H.cross(L);
+                        
+                        turtle.hlu.set(H.x, L.x, U.x,
+                                       H.y, L.y, U.y,
+                                       H.z, L.z, U.z,);
+                    }
+                    // Decrement the diameter of segments
+                    else if (current == '!') {
+                        
+                    }
+                    // Increment the current color index
+                    else if (current == '´') {
+                        currentColorIndex = (currentColorIndex+1)% colorMaterial.length;
+                    }
+                    //Draw leaf
+                    else if (current == 'L') {
+                        drawLeaf(turtle.pos,turtle.hlu,turtle.len);
                     }
                 }
             }
+            //controller.onFinishChange(GenDraw);
+            // Generate the sentence and draw the structure 
+            var obj = {Generate: GenDraw};
+            gui.add(obj,'Generate');
 
-            // Generate sentence from grammar and draw structure with turtle graphics
-            for(let i = 0; i < n; i++)
-                generate();
-            turtle();
-
-
-			controls.update();
+            function GenDraw() {
+                if(typeof folder1 !== 'undefined') {
+                    gui.removeFolder('Grammar');
+                }
+                
+                if(figureShape.Structure != figureShape.prev) {
+                    rulechange();
+                    figureShape.prev = figureShape.Structure;
+                }
+                    createFolder();
+                
+                for( var i = scene.children.length - 1; i >= 0; i--) { 
+                    obj = scene.children[i];
+                    scene.remove(obj); 
+                }
+                sentence = axiom;
+                for(let i = 0; i < n; i++)
+                    generate();
+                turtle();
+            }
+            
+            
+            controls.update();
+            GenDraw();
+            
 
 			let animate = function () {
-				requestAnimationFrame( animate );
+                requestAnimationFrame( animate );
+               
 				controls.update();
-				renderer.render( scene, camera );	
+				renderer.render( scene, camera );
 			};
 
 			animate();
