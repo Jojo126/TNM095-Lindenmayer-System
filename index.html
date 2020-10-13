@@ -68,7 +68,8 @@
             //5 == Woven sphere
 
 
-            let controller = gui.add(figureShape, 'Structure',1,5,1);
+            //let controller = gui.add(figureShape, 'Structure',1,5,1);
+            let controller = gui.add(figureShape, 'Structure', {Stochastic: 1, Bush: 2, Box: 3, Fern: 4, Ball: 5});
 
             let rules = [];
             let axiom = 'F';
@@ -91,8 +92,6 @@
                     cpro: 33,
                     dpro: 34,
                 };
-                
-                //createFolder();
 
             } else if (figureShape.Structure == 2){
 
@@ -130,8 +129,6 @@
                 cpro:0
 
                 };
-
-                //createFolder();
                 
             }else if (figureShape.Structure == 3){
 
@@ -165,8 +162,6 @@
                 
                 };
                 
-                //createFolder();
-
             }else if (figureShape.Structure == 4){
 
                 angle = 4 * Math.PI/180; // Conversion from degrees to radians
@@ -197,7 +192,6 @@
                     bpro: 101 
 			    };
                 
-                //createFolder();
 
             }else if (figureShape.Structure == 5){
 
@@ -211,7 +205,6 @@
                     bpro: 101
                 };
 
-                //createFolder();
             }
         }
             let sentence = axiom;
