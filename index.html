@@ -59,28 +59,28 @@
 
 
             let figureShape = {Structure: 1,
-                              prev: 0};
-            
-            //1 == Stokastisk träd
-            //2 == Träd
-            //3 == 3D Hilbert curve
-            //4 == Fern
-            //5 == Woven sphere
-
-
-            //let controller = gui.add(figureShape, 'Structure',1,5,1);
-            let controller = gui.add(figureShape, 'Structure', {Stochastic: 1, Bush: 2, Box: 3, Fern: 4, Ball: 5});
-
+                               prev: 0,
+                               angle: 22, // Angle in degrees, gets converted into radiance in turtle during rendering
+                               'n (Iterations)': 4 // Number of iterations when generating sentence 
+                              };
             let rules = [];
             let axiom = 'F';
-            let angle = 22 * Math.PI/180; // Conversion from degrees to radians
-            let n = 4; // Number of iterations when generating sentence 
+
+            let controller = gui.add(figureShape, 'Structure', {'Stochastic tree': 1, 'Simple Tree with Leaves': 2, '3D Hilbert Curve': 3, Fern: 4, 'Woven Sphere': 5, '2D Fractal Plant': 6, '2D Branching': 7, 'Dragon Curve': 8, 'Sierpinski Triangle': 9}).onChange(() => {
+                rulechange();
+                nController.updateDisplay();
+                angleController.updateDisplay();
+            });
+            
+            let nController = gui.add(figureShape, 'n (Iterations)',1, 15, 1);
+            let angleController = gui.add(figureShape, 'angle', 0, 180).name('Angle (radians)');
+
 
 
             function rulechange(){
             if(figureShape.Structure == 1){
-                angle = 22 * Math.PI/180; // Conversion from degrees to radians
-                n = 4; // Number of iterations when generating sentence
+                figureShape.angle = 22; // Conversion from degrees to radians
+                figureShape["n (Iterations)"] = 4; // Number of iterations when generating sentence
                 axiom = 'F'; 
             
                 rules[0] = {
@@ -95,8 +95,8 @@
 
             } else if (figureShape.Structure == 2){
 
-                angle = 22 * Math.PI/180; // Conversion from degrees to radians
-                n = 4; // Number of iterations when generating sentence
+                figureShape.angle = 22; // Conversion from degrees to radians
+                figureShape["n (Iterations)"] = 4; // Number of iterations when generating sentence
                 axiom = 'A';
 
                 //Tree(22,7)
@@ -134,8 +134,8 @@
 
                 //3D Hilbert curve (90,4)
 
-                angle = 90 * Math.PI/180; // Conversion from degrees to radians
-                n = 3; // Number of iterations when generating sentence
+                figureShape.angle = 90;
+                figureShape["n (Iterations)"] = 3; // Number of iterations when generating sentence
                 axiom = 'A';
                 rules[0] = {
                 a: 'A',
@@ -164,8 +164,8 @@
                 
             }else if (figureShape.Structure == 4){
 
-                angle = 4 * Math.PI/180; // Conversion from degrees to radians
-                n = 12; // Number of iterations when generating sentence
+                figureShape.angle = 4; // Conversion from degrees to radians
+                figureShape["n (Iterations)"] = 12; // Number of iterations when generating sentence
                 axiom = 'CCCF´';
 
                 rules[3] = {
@@ -195,8 +195,8 @@
 
             }else if (figureShape.Structure == 5){
 
-                angle = 40 * Math.PI/180; // Conversion from degrees to radians
-                n = 5; // Number of iterations when generating sentence
+                figureShape.angle = 40;
+                figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
                 axiom = 'F';
 
                 rules[0] = {
@@ -205,6 +205,65 @@
                     bpro: 101
                 };
 
+            } else if (figureShape.Structure == 6){
+
+                figureShape.angle = 22.5;
+                figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
+                axiom = 'X';
+
+                rules[0] = {
+                    a: 'X',
+                    b: 'F-[[X]+X]+F[+FX]-X',
+                    bpro: 101
+                };
+                rules[1] = {
+                    a: 'F',
+                    b: 'FF',
+                    bpro: 101
+                };
+            } else if (figureShape.Structure == 7){
+
+                figureShape.angle = 25.7;
+                figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
+                axiom = 'F';
+
+                rules[0] = {
+                    a: 'F',
+                    b: 'F[+F]F[-F]F',
+                    bpro: 101
+                };
+            } else if (figureShape.Structure == 8){
+
+                figureShape.angle = 90;
+                figureShape["n (Iterations)"] = 10; // Number of iterations when generating sentence
+                axiom = 'FX';
+
+                rules[0] = {
+                    a: 'X',
+                    b: 'X+YF+',
+                    bpro: 101
+                };
+                rules[1] = {
+                    a: 'Y',
+                    b: '-FX-Y',
+                    bpro: 101
+                };
+            } else if (figureShape.Structure == 9){
+
+                figureShape.angle = 60;
+                figureShape["n (Iterations)"] = 6; // Number of iterations when generating sentence
+                axiom = 'F';
+
+                rules[0] = {
+                    a: 'F',
+                    b: 'G-F-G',
+                    bpro: 101
+                };
+                rules[1] = {
+                    a: 'G',
+                    b: 'F+G+F',
+                    bpro: 101
+                };
             }
         }
             let sentence = axiom;
@@ -301,6 +360,7 @@
 
 			// Draw structure based on generated sentence
             function turtle() {
+                let angle = figureShape.angle * Math.PI/180;
                 let turtle = {
                     pos: new THREE.Vector3(0,-10,0),
                     // Up, Left, Head, can be compared to yaw, pitch, roll
@@ -443,14 +503,14 @@
                     scene.remove(obj); 
                 }
                 sentence = axiom;
-                for(let i = 0; i < n; i++)
+                for(let i = 0; i < figureShape["n (Iterations)"]; i++)
                     generate();
                 turtle();
                 
                 // Add back lightsources becaue they also get removed
-                var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+                var light = new THREE.AmbientLight( 0x808080 ); // soft white light
                 scene.add( light );
-                var light = new THREE.PointLight( 0xffffff, 1, 100 );
+                var light = new THREE.PointLight( 0xffffff, 1);
                 light.position.set( 0, 0, 10 );
                 scene.add( light );
             }
