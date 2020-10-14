@@ -37,8 +37,18 @@
                 folder1 = gui.addFolder('Grammar');
                 folder1.open();
                 for(let i = 0; i < rules.length; i++){
+                    // First two should always exist!
                     folder1.add(rules[i],'a');
                     folder1.add(rules[i],'b');
+                    
+                    if (rules[i].c !== undefined) {
+                        folder1.add(rules[i],'bpro',0,100-rules[i].cpro,1).name('b probability');
+                        folder1.add(rules[i],'c');
+                        folder1.add(rules[i],'cpro',0,100-rules[i].bpro,1).name('c probability');   
+                    }
+                    if (rules[i].d !== undefined) {
+                        folder1.add(rules[i],'d');
+                    }
                 }
             }
                         
@@ -65,7 +75,6 @@
                                Axiom: 'F'
                               };
             let rules = [];
-            //let axiom = 'F';
 
             let controller = gui.add(figureShape, 'Structure', {'Stochastic tree': 1, 
                                                                 'Simple Tree with Leaves': 2, 
@@ -105,8 +114,7 @@
                     c: 'F´[+F´]^F´',
                     d: 'F´+F´/F´',
                     bpro: 33,
-                    cpro: 33,
-                    dpro: 34,
+                    cpro: 33
                 };
 
             } else if (figureShape.Structure == 2){
