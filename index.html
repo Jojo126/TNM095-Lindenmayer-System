@@ -61,10 +61,11 @@
             let figureShape = {Structure: 1,
                                prev: 0,
                                angle: 22, // Angle in degrees, gets converted into radiance in turtle during rendering
-                               'n (Iterations)': 4 // Number of iterations when generating sentence 
+                               'n (Iterations)': 4, // Number of iterations when generating sentence
+                               Axiom: 'F'
                               };
             let rules = [];
-            let axiom = 'F';
+            //let axiom = 'F';
 
             let controller = gui.add(figureShape, 'Structure', {'Stochastic tree': 1, 
                                                                 'Simple Tree with Leaves': 2, 
@@ -81,11 +82,12 @@
                 
                 nController.updateDisplay();
                 angleController.updateDisplay();
+                axiomController.updateDisplay();
             });
             
             let nController = gui.add(figureShape, 'n (Iterations)',1, 15, 1);
             let angleController = gui.add(figureShape, 'angle', 0, 180).name('Angle (radians)');
-
+            let axiomController = gui.add(figureShape, 'Axiom');
 
 
             function rulechange(){
@@ -95,7 +97,7 @@
             if(figureShape.Structure == 1){
                 figureShape.angle = 22; // Conversion from degrees to radians
                 figureShape["n (Iterations)"] = 4; // Number of iterations when generating sentence
-                axiom = 'F'; 
+                figureShape.Axiom = 'F'; 
             
                 rules[0] = {
                     a: 'F',
@@ -111,7 +113,7 @@
 
                 figureShape.angle = 22; // Conversion from degrees to radians
                 figureShape["n (Iterations)"] = 4; // Number of iterations when generating sentence
-                axiom = 'A';
+                figureShape.Axiom = 'A';
 
                 //Tree(22,7)
                 rules[0] = {
@@ -150,7 +152,7 @@
 
                 figureShape.angle = 90;
                 figureShape["n (Iterations)"] = 3; // Number of iterations when generating sentence
-                axiom = 'A';
+                figureShape.Axiom = 'A';
                 rules[0] = {
                 a: 'A',
                 b: 'B-F´+CF´C+F´-D&F´^D-F´+&&CF´C+F´+B//',
@@ -180,7 +182,7 @@
 
                 figureShape.angle = 4; // Conversion from degrees to radians
                 figureShape["n (Iterations)"] = 12; // Number of iterations when generating sentence
-                axiom = 'CCCF´';
+                figureShape.Axiom = 'CCCF´';
 
                 rules[3] = {
                     a: 'F',
@@ -211,7 +213,7 @@
 
                 figureShape.angle = 40;
                 figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
-                axiom = 'F';
+                figureShape.Axiom = 'F';
 
                 rules[0] = {
                     a: 'F',
@@ -223,7 +225,7 @@
 
                 figureShape.angle = 22.5;
                 figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
-                axiom = 'X';
+                figureShape.Axiom = 'X';
 
                 rules[0] = {
                     a: 'X',
@@ -239,7 +241,7 @@
 
                 figureShape.angle = 25.7;
                 figureShape["n (Iterations)"] = 5; // Number of iterations when generating sentence
-                axiom = 'F';
+                figureShape.Axiom = 'F';
 
                 rules[0] = {
                     a: 'F',
@@ -250,7 +252,7 @@
 
                 figureShape.angle = 90;
                 figureShape["n (Iterations)"] = 10; // Number of iterations when generating sentence
-                axiom = 'FA';
+                figureShape.Axiom = 'FA';
 
                 rules[0] = {
                     a: 'A',
@@ -266,7 +268,7 @@
 
                 figureShape.angle = 60;
                 figureShape["n (Iterations)"] = 6; // Number of iterations when generating sentence
-                axiom = 'F';
+                figureShape.Axiom = 'F';
 
                 rules[0] = {
                     a: 'F',
@@ -280,7 +282,7 @@
                 };
             }
         }
-            let sentence = axiom;
+            let sentence = figureShape.Axiom;
 
 			// Generate sentence from rules/grammar
 			function generate() {
@@ -516,7 +518,7 @@
                     obj = scene.children[i];
                     scene.remove(obj); 
                 }
-                sentence = axiom;
+                sentence = figureShape.Axiom;
                 for(let i = 0; i < figureShape["n (Iterations)"]; i++)
                     generate();
                 turtle();
