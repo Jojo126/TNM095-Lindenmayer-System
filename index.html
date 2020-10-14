@@ -66,8 +66,19 @@
             let rules = [];
             let axiom = 'F';
 
-            let controller = gui.add(figureShape, 'Structure', {'Stochastic tree': 1, 'Simple Tree with Leaves': 2, '3D Hilbert Curve': 3, Fern: 4, 'Woven Sphere': 5, '2D Fractal Plant': 6, '2D Branching': 7, 'Dragon Curve': 8, 'Sierpinski Triangle': 9}).onChange(() => {
-                rulechange();
+            let controller = gui.add(figureShape, 'Structure', {'Stochastic tree': 1, 
+                                                                'Simple Tree with Leaves': 2, 
+                                                                '3D Hilbert Curve': 3, 
+                                                                Fern: 4, 
+                                                                'Woven Sphere': 5, 
+                                                                '2D Fractal Plant': 6, 
+                                                                '2D Branching': 7, 
+                                                                'Dragon Curve': 8, 
+                                                                'Sierpinski Triangle': 9
+                                                               }).onChange(() => {
+
+                GenDraw();
+                
                 nController.updateDisplay();
                 angleController.updateDisplay();
             });
