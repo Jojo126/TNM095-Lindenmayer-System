@@ -78,6 +78,9 @@
 
 
             function rulechange(){
+                
+                rules = [];
+                
             if(figureShape.Structure == 1){
                 figureShape.angle = 22; // Conversion from degrees to radians
                 figureShape["n (Iterations)"] = 4; // Number of iterations when generating sentence
@@ -236,16 +239,16 @@
 
                 figureShape.angle = 90;
                 figureShape["n (Iterations)"] = 10; // Number of iterations when generating sentence
-                axiom = 'FX';
+                axiom = 'FA';
 
                 rules[0] = {
-                    a: 'X',
-                    b: 'X+YF+',
+                    a: 'A',
+                    b: 'A+BF+',
                     bpro: 101
                 };
                 rules[1] = {
-                    a: 'Y',
-                    b: '-FX-Y',
+                    a: 'B',
+                    b: '-FA-B',
                     bpro: 101
                 };
             } else if (figureShape.Structure == 9){
